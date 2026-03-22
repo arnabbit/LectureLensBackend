@@ -7,6 +7,7 @@ const ingestRouter = require('./routes/ingest');
 const processRouter = require('./routes/process');
 const lecturesRouter = require('./routes/lectures');
 const quizRouter = require('./routes/quiz');
+const { resumeIncompleteProcessing } = require('./services/processingRunner');
 
 const app = express();
 
@@ -44,6 +45,7 @@ async function start() {
 
     app.listen(PORT, () => {
       console.log(`[app] Server listening on port ${PORT}`);
+      resumeIncompleteProcessing();
     });
   } catch (err) {
     console.error('[app] Failed to start:', err.message);

@@ -15,6 +15,7 @@ const problemSchema = new mongoose.Schema({
   lectureId: { type: mongoose.Schema.Types.ObjectId, ref: 'Lecture', required: true },
   sectionName: { type: String },
   lectureName: { type: String },
+  problemName: { type: String },
   problemStatement: { type: String },
   approaches: [approachSchema],
   keyInsights: [{ type: String }],

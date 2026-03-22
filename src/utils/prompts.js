@@ -14,6 +14,7 @@ Return ONLY valid JSON in this exact format:
 {
   "problems": [
     {
+      "problemName": "short recognizable name (e.g., Two Sum, Merge Intervals, LRU Cache)",
       "problemStatement": "string describing the problem",
       "approaches": [
         {

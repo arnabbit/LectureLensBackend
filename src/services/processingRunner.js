@@ -28,6 +28,7 @@ async function processLecture(lecture, course) {
       lectureId: lecture._id,
       sectionName: lecture.sectionName,
       lectureName: lecture.lectureName,
+      problemName: p.problemName || '',
       problemStatement: p.problemStatement,
       approaches: p.approaches || [],
       keyInsights: p.keyInsights || [],
@@ -104,4 +105,43 @@ async function triggerProcessing(course) {
   }
 }
 
-module.exports = { processLecture, runBackgroundProcessing, triggerProcessing };
+async function resumeIncompleteProcessing() {
+  try {
+    const incompleteCourses = await Course.find({ processingStatus: 'processing' });
+
+    if (incompleteCourses.length === 0) {
+      console.log('[resume] No incomplete processing found');
+      return;
+    }
+
+    console.log(`[resume] Found ${incompleteCourses.length} course(s) with incomplete processing`);
+
+    for (const course of incompleteCourses) {
+      const pending = await Lecture.countDocuments({ courseId: course._id, processed: false, failed: false });
+      const failed = await Lecture.countDocuments({ courseId: course._id, failed: true });
+
+      console.log(`[resume] Course "${course.name}" (${course._id}): ${pending} pending, ${failed} failed`);
+
+      if (pending === 0 && failed === 0) {
+        await Course.findByIdAndUpdate(course._id, { processingStatus: 'done' });
+        console.log(`[resume] Course "${course.name}" marked done (no remaining lectures)`);
+        continue;
+      }
+
+      // Reset failed lectures so they get retried
+      if (failed > 0) {
+        await Lecture.updateMany(
+          { courseId: course._id, failed: true },
+          { failed: false, failReason: '' }
+        );
+        console.log(`[resume] Reset ${failed} failed lectures for retry`);
+      }
+
+      setImmediate(() => runBackgroundProcessing(course));
+    }
+  } catch (err) {
+    console.error('[resume] Error resuming incomplete processing:', err.message);
+  }
+}
+
+module.exports = { processLecture, runBackgroundProcessing, triggerProcessing, resumeIncompleteProcessing };
