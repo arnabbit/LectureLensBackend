@@ -30,7 +30,7 @@ router.post('/grade', async (req, res) => {
     };
 
     const messages = [
-      { role: 'user', content: gradeAnswerPrompt(problemData, userAnswer) },
+      { role: 'user', content: gradeAnswerPrompt(problemData, userAnswer, idx) },
     ];
 
     let response;
@@ -60,6 +60,11 @@ router.post('/grade', async (req, res) => {
     }
 
     const responseBody = { grade, feedback };
+
+    // Include optimisationScore for frontend sorting
+    if (approach && approach.optimisationScore !== undefined) {
+      responseBody.optimisationScore = approach.optimisationScore;
+    }
 
     // Include model explanation if answer is not fully correct
     if (grade !== 'correct' && approach) {

@@ -6,6 +6,10 @@ For each problem, extract:
 2. All approaches/solutions discussed, with their time and space complexity
 3. Key insights or takeaways
 
+IMPORTANT rules:
+- For complexity values, return ONLY the O() notation with no extra text. Correct: "O(n log n)". Incorrect: "O(n log n) due to sorting" or "Time: O(n)".
+- Each approach must include an "optimisationScore" integer. Rank all approaches for a problem from 1 (brute force / least optimal) to N (most optimal), where N is the total number of approaches. For example, with 3 approaches: brute force = 1, intermediate = 2, most optimal = 3.
+
 Return ONLY valid JSON in this exact format:
 {
   "problems": [
@@ -18,6 +22,7 @@ Return ONLY valid JSON in this exact format:
             "time": "O(...)",
             "space": "O(...)"
           },
+          "optimisationScore": 1,
           "explanation": "detailed explanation of this approach"
         }
       ],
@@ -115,12 +120,18 @@ Extraction:
 ${JSON.stringify(extraction, null, 2)}`;
 }
 
-function gradeAnswerPrompt(problemData, userAnswer) {
+function gradeAnswerPrompt(problemData, userAnswer, approachIndex) {
+  const idx = approachIndex !== undefined ? Number(approachIndex) : 0;
+  const approach = problemData.approaches && problemData.approaches[idx];
+  const explanation = approach ? approach.explanation : 'N/A';
+  const score = approach && approach.optimisationScore ? approach.optimisationScore : 'N/A';
+
   return `You are an expert educator grading a student's answer.
 
 Problem: ${problemData.problemStatement}
 
-Expected explanation: ${problemData.approaches && problemData.approaches.length > 0 ? problemData.approaches[0].explanation : 'N/A'}
+Expected explanation: ${explanation}
+Optimisation score of this approach: ${score} (1 = brute force, higher = more optimal)
 
 Student's answer: ${userAnswer}
 

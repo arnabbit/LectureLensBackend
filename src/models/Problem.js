@@ -6,6 +6,7 @@ const approachSchema = new mongoose.Schema({
     time: { type: String },
     space: { type: String },
   },
+  optimisationScore: { type: Number },
   explanation: { type: String },
 });
 
