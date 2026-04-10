@@ -1,23 +1,15 @@
-import { llm } from '../services/llm';
-import { categoryDetectPrompt } from '../utils/prompts';
+const llm = require('../services/llm');
+const { categoryDetectPrompt } = require('../utils/prompts');
 
-// Cache for storing detected categories per courseId
-const categoryCache = new Map<string, string>();
-
-// Valid categories that the system supports
+const categoryCache = new Map();
 const VALID_CATEGORIES = new Set(['dsa', 'generic']);
 
-/**
- * Detects the category of a course based on its name
- * Uses LLM to classify and caches results per courseId
- */
-export async function detectCategory(courseId: string, courseName: string): Promise<string> {
+async function detectCategory(courseId, courseName) {
   const cacheKey = String(courseId);
 
-  // Return cached result if available
   if (categoryCache.has(cacheKey)) {
     console.log(`[categoryDetector] Cache hit for courseId ${courseId}: "${categoryCache.get(cacheKey)}"`);
-    return categoryCache.get(cacheKey)!;
+    return categoryCache.get(cacheKey);
   }
 
   try {
@@ -28,10 +20,8 @@ export async function detectCategory(courseId: string, courseName: string): Prom
     const response = await llm.chat(messages);
     const category = response.trim().toLowerCase().split(/\s+/)[0];
 
-    // Validate against known categories, default to 'generic' for unknown
     const resolved = VALID_CATEGORIES.has(category) ? category : 'generic';
 
-    // Cache the result
     categoryCache.set(cacheKey, resolved);
     return resolved;
   } catch (error) {
@@ -40,10 +30,8 @@ export async function detectCategory(courseId: string, courseName: string): Prom
   }
 }
 
-/**
- * Clears the category detection cache
- * Useful for testing or when category mappings change
- */
-export function clearCategoryCache() {
+function clearCategoryCache() {
   categoryCache.clear();
 }
+
+module.exports = { detectCategory, clearCategoryCache };

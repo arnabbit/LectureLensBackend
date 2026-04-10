@@ -1,5 +1,4 @@
-// DSA-specific extraction prompts
-export function dsaExtractPrompt(transcript: string): string {
+function dsaExtractPrompt(transcript) {
   return `You are an expert computer science educator. Analyze the following lecture transcript and extract all DSA (Data Structures and Algorithms) problems discussed.
 
 For each problem, extract:
@@ -38,3 +37,5 @@ If no DSA problems are found, return { "problems": [] }.
 Transcript:
 ${transcript}`;
 }
+
+module.exports = { dsaExtractPrompt };

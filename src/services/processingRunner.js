@@ -105,12 +105,8 @@ async function triggerProcessing(course) {
   }
 }
 
-// Helper function to maintain backward compatibility with existing categoryDetector
 async function detectCategory(courseId, courseName) {
-  const { routeCourse } = require('../categories/router');
   const categoryModule = await routeCourse(courseId, courseName);
-
-  // Extract category ID from the module's config
   return categoryModule.config.id;
 }
 

@@ -1,5 +1,4 @@
-// Generic extraction prompts
-export function genericExtractPrompt(transcript: string): string {
+function genericExtractPrompt(transcript) {
   return `You are an expert educator. Extract the main concepts from this lecture transcript.
 
 For each concept, extract:
@@ -23,3 +22,5 @@ If no clear concepts can be extracted, return { "concepts": [] }.
 Transcript:
 ${transcript}`;
 }
+
+module.exports = { genericExtractPrompt };

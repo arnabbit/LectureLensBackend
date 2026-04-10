@@ -1,10 +1,4 @@
-// DSA extract prompt has been moved to src/categories/dsa/prompts.ts
-// This function is kept for backward compatibility but delegates to the new location
-const { dsaExtractPrompt } = require('../categories/dsa/prompts');
-
 function dsaExtractPrompt(transcript) {
-  // Note: This requires CommonJS interop handling
-  // For now, we'll keep the original implementation to avoid breaking changes
   return `You are an expert computer science educator. Analyze the following lecture transcript and extract all DSA (Data Structures and Algorithms) problems discussed.
 
 For each problem, extract:
@@ -187,13 +181,11 @@ function categoryDetectPrompt(courseName) {
   return `You are a course categorization expert. Given a course name, classify it into exactly one of these categories:
 
 - dsa: Data Structures and Algorithms, coding interviews, competitive programming
-- language: Programming language tutorials (Python, JavaScript, Java, C++, etc.), frameworks, web development
-- photography: Photography, videography, photo editing, camera techniques
-- other: Anything that doesn't fit the above categories
+- generic: Anything else (programming languages, photography, general topics, etc.)
 
 Course name: "${courseName}"
 
-Respond ONLY with the category name (one word, lowercase): dsa, language, photography, or other`;
+Respond ONLY with the category name (one word, lowercase): dsa or generic`;
 }
 
 module.exports = {
