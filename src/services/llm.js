@@ -1,12 +1,11 @@
 const fetch = require('node-fetch');
-const { OPENROUTER_API_KEY } = require('../config');
+const { OPENROUTER_API_KEY, LLM_MODEL } = require('../config');
 
 const BASE_URL = 'https://openrouter.ai/api/v1/chat/completions';
-const MODEL = 'nvidia/nemotron-3-super-120b-a12b:free';
 
 async function chat(messages, { json = false } = {}) {
   const body = {
-    model: MODEL,
+    model: LLM_MODEL,
     messages,
   };
 

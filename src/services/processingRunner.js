@@ -3,8 +3,7 @@ const Lecture = require('../models/Lecture');
 const Problem = require('../models/Problem');
 const { routeCourse } = require('../categories/router');
 const validator = require('./validator');
-
-const LLM_MODEL = 'nvidia/nemotron-3-super-120b-a12b:free';
+const { LLM_MODEL } = require('../config');
 
 async function processLecture(lecture, course) {
   if (!lecture.rawTranscript || lecture.rawTranscript.trim() === '') {
