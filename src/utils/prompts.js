@@ -1,4 +1,10 @@
+// DSA extract prompt has been moved to src/categories/dsa/prompts.ts
+// This function is kept for backward compatibility but delegates to the new location
+const { dsaExtractPrompt } = require('../categories/dsa/prompts');
+
 function dsaExtractPrompt(transcript) {
+  // Note: This requires CommonJS interop handling
+  // For now, we'll keep the original implementation to avoid breaking changes
   return `You are an expert computer science educator. Analyze the following lecture transcript and extract all DSA (Data Structures and Algorithms) problems discussed.
 
 For each problem, extract:

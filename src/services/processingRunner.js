@@ -1,9 +1,8 @@
 const Course = require('../models/Course');
 const Lecture = require('../models/Lecture');
 const Problem = require('../models/Problem');
-const categoryDetector = require('./categoryDetector');
+const { routeCourse } = require('../categories/router');
 const validator = require('./validator');
-const registry = require('../processors/registry');
 
 const LLM_MODEL = 'nvidia/nemotron-3-super-120b-a12b:free';
 
@@ -16,8 +15,14 @@ async function processLecture(lecture, course) {
 
   console.log(`[process] Processing lecture ${lecture._id} (${lecture.lectureName})`);
 
-  const processor = registry.get(course.category || 'other');
-  const problems = await processor.processWithRetry([lecture.rawTranscript], validator, lecture.rawTranscript);
+  // Get the appropriate category module for this course
+  const categoryModule = await routeCourse(course._id, course.name);
+
+  // Process the lecture using the category module
+  const result = await categoryModule.extract(lecture.rawTranscript);
+
+  // Convert ExtractionResult to the expected problems format
+  const problems = result.concepts || [];
   console.log(`[process] LLM extraction done for lecture ${lecture._id}: ${problems.length} problems`);
 
   await Problem.deleteMany({ lectureId: lecture._id });
@@ -83,14 +88,9 @@ async function runBackgroundProcessing(course, lectureFilter = {}) {
 
 async function triggerProcessing(course) {
   try {
-    let category;
-    try {
-      category = await categoryDetector.detect(course.courseId, course.name);
-      console.log(`[process] Category detected: "${category}" for course "${course.name}"`);
-    } catch (err) {
-      category = 'other';
-      console.error('[process] Category detection failed, defaulting to "other":', err.message);
-    }
+    // Detect category and store it on the course
+    const category = await detectCategory(course._id, course.name);
+    console.log(`[process] Category detected: "${category}" for course "${course.name}"`);
 
     course.category = category;
     course.detectedAt = new Date();
@@ -103,6 +103,15 @@ async function triggerProcessing(course) {
   } catch (err) {
     console.error('[process] triggerProcessing error:', err.message);
   }
+}
+
+// Helper function to maintain backward compatibility with existing categoryDetector
+async function detectCategory(courseId, courseName) {
+  const { routeCourse } = require('../categories/router');
+  const categoryModule = await routeCourse(courseId, courseName);
+
+  // Extract category ID from the module's config
+  return categoryModule.config.id;
 }
 
 async function resumeIncompleteProcessing() {
